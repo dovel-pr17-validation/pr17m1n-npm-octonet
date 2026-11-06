@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Deploy
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v3
+
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: "18"
+        registry-url: "https://registry.npmjs.org"
+        cache: "yarn"
+      
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    - name: Build and publish
+      run: |
+        yarn build
+        npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
